@@ -1,23 +1,25 @@
 import { H1, H2 } from "@/components/typography/heading";
 import { Lead } from "@/components/typography/lead";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabaseClient";
+import { useAuth } from "@/hooks/useAuth";
+import { supabaseClient } from "@/lib/supabaseClient";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 import { BsGoogle } from "react-icons/bs";
 
 export const Login: React.FC = () => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleLogin = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabaseClient.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: "http://localhost:3000/"
-        }
-      })
+          redirectTo: "http://localhost:3000/",
+        },
+      });
 
       if (error) {
         setLoading(false);
@@ -30,6 +32,10 @@ export const Login: React.FC = () => {
       console.log(error);
     }
   };
+
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="login flex flex-col justify-center items-center gap-4 h-[90vh]">

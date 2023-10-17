@@ -1,11 +1,10 @@
 import { Navbar } from "@/components/Navbar";
-import { Outlet } from "react-router-dom";
 
-export const RootLayout = () => {
+export default function RootLayout ({ children }: { children: React.ReactNode }) {  
   return (
     <div className="flex flex-col">
       <Navbar />
-      <Outlet />
+      <>{children}</>
     </div>
   );
-};
+}

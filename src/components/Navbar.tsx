@@ -1,6 +1,6 @@
 import { NavLink, Link } from "react-router-dom";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
+import { UserNav } from "./UserNav";
 import {
   Sheet,
   SheetClose,
@@ -13,8 +13,15 @@ import {
 } from "./ui/sheet";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
+import { useAuth } from "@/hooks/useAuth";
 
 export const Navbar: React.FC = () => {
+  const { user } = useAuth();
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <nav className="flex justify-between items-center mx-10 py-6 border-b-2 border-b-gray-100">
       <Link
@@ -38,22 +45,19 @@ export const Navbar: React.FC = () => {
         </NavLink>
         <NavLink
           className="hover:bg-nav-item-hover hover:text-black text-gray-500 hover:font-semibold font-medium text-sm px-4 py-2 rounded-full cursor-pointer"
-          to="find-work"
+          to="/find-work"
         >
           Find Work
         </NavLink>
         <NavLink
           className="hover:bg-nav-item-hover hover:text-black text-gray-500 hover:font-semibold font-medium text-sm px-4 py-2 rounded-full cursor-pointer"
-          to="hire-artist"
+          to="/hire-artist"
         >
           Hire Artist
         </NavLink>
       </div>
       <div className="right-section flex justify-center items-center gap-x-4">
-        <Avatar>
-          <AvatarImage src="https://github.com/shadcn.png" alt="PF" />
-          <AvatarFallback>PF</AvatarFallback>
-        </Avatar>
+        <UserNav />
         <Sheet>
           <SheetTrigger asChild>
             <Button className="rounded-full bg-dribbble-1 hover:bg-dribbble-1 shadow-lg shadow-dribbble-1/30">
@@ -66,8 +70,14 @@ export const Navbar: React.FC = () => {
                 <h1 className="text-2xl">Share your artwork on Artica</h1>
               </SheetTitle>
               <SheetDescription>
-                <p>🎨 Embrace the world of colors, shapes, and emotions with this exquisite piece of art.</p>
-                <p>🖌️ Let your imagination run wild and immerse yourself in a journey of creativity and expression.</p>
+                <p>
+                  🎨 Embrace the world of colors, shapes, and emotions with this
+                  exquisite piece of art.
+                </p>
+                <p>
+                  🖌️ Let your imagination run wild and immerse yourself in a
+                  journey of creativity and expression.
+                </p>
               </SheetDescription>
             </SheetHeader>
             <div className="grid justify-start items-start gap-4 py-4">
