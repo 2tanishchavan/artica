@@ -25,3 +25,7 @@ dist-ssr
 
 # Environment files
 .env
+
+# Server files
+__pycache__
+venv

@@ -1,6 +1,6 @@
-import { Session, User } from "@supabase/supabase-js";
 import { useState, useEffect, createContext } from "react";
 import { supabaseClient } from "@/lib/supabaseClient";
+import { Session, User } from "@supabase/supabase-js";
 
 // create a context for authentication
 export const AuthContext = createContext<{
@@ -22,9 +22,43 @@ export const AuthProvider = ({ children }: any) => {
         error,
       } = await supabaseClient.auth.getSession();
       if (error) throw error;
-      setSession(session);
-      setUser(session?.user);
-      setLoading(false);
+
+      if (session) {
+        // First check whether user data already exists or not in db
+
+        const { data, error } = await supabaseClient
+          .from("users")
+          .select("id")
+          .eq("id", session.user.id);   
+        
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          // The ID exists in the "users" table
+          setSession(session);
+          setUser(session.user);
+          setLoading(false);
+        } else {
+          // The ID does not exist in the "users" table
+          const { data, error } = await supabaseClient
+            .from("users")
+            .insert({
+              id: session.user.id,
+              full_name: session.user.user_metadata.full_name,
+              email: session.user.user_metadata.email,
+              avatar_url: session.user.user_metadata.avatar_url,
+              bio: "",
+              location: "",
+            })
+            .select();
+
+          if (error) throw error;
+
+          if (data) {
+            console.log(data);
+          }
+        }
+      }
     };
 
     const { data: listener } = supabaseClient.auth.onAuthStateChange(
@@ -47,7 +81,7 @@ export const AuthProvider = ({ children }: any) => {
     user,
     signOut: () => supabaseClient.auth.signOut(),
   };
-  
+
   // use a provider to pass down the value
   return (
     <AuthContext.Provider value={value}>

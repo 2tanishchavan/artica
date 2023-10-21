@@ -1,10 +1,10 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { AuthProvider } from "./context/Auth";
-import RootLayout from "./layouts/RootLayout";
-import ProtectedRoute from "./layouts/ProtectedRoute";
-import { Login } from "./pages/auth/Login";
-import { Inspiration, LearnArt, FindWork, HireArtist } from "./pages/content";
-import "./App.css";
+import { AuthProvider } from "@/context/Auth";
+import RootLayout from "@/layouts/RootLayout";
+import ProtectedRoute from "@/layouts/ProtectedRoute";
+import { Login } from "@/pages/auth/Login";
+import { Inspiration, LearnArt, FindWork, HireArtist, Profile } from "@/pages/content";
+import "@/App.css";
 
 export default function App() {
   return (
@@ -42,6 +42,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <HireArtist />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="profile"
+              element={
+                <ProtectedRoute>
+                  <Profile />
                 </ProtectedRoute>
               }
             />

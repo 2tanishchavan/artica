@@ -10,18 +10,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function UserNav() {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    signOut();
+    navigate("/login");
+  };
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage
-              src={user?.user_metadata.avatar_url}
+              src={user?.user_metadata.avatar_url.toString()}
               alt={user?.user_metadata.full_name}
             />
             <AvatarFallback>
@@ -46,14 +52,20 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <Link to="profile">
-            <DropdownMenuItem className="cursor-pointer">Profile</DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
+              Profile
+            </DropdownMenuItem>
           </Link>
           <Link to="setting">
-            <DropdownMenuItem className="cursor-pointer">Settings</DropdownMenuItem>
+            <DropdownMenuItem className="cursor-pointer">
+              Settings
+            </DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="cursor-pointer" onClick={signOut}>Log out</DropdownMenuItem>
+        <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
+          Log out
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

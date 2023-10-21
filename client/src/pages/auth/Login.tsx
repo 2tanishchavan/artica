@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { H1, H2 } from "@/components/typography/heading";
 import { Lead } from "@/components/typography/lead";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabaseClient } from "@/lib/supabaseClient";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
 import { BsGoogle } from "react-icons/bs";
 
 export const Login: React.FC = () => {
