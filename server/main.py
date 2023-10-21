@@ -5,7 +5,7 @@ from recommendation import get_similar_posts_recommendations
 
 app = FastAPI()
 
-origins = ["*"]
+origins = ["http://localhost:3000", "https://articaa.netlify.app"]
 
 app.add_middleware(
     CORSMiddleware, allow_origins=origins, allow_methods=["*"], allow_headers=["*"]
