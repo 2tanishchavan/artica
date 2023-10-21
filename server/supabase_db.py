@@ -4,8 +4,8 @@ from supabase import create_client, Client
 
 load_dotenv()
 
-url: str = os.environ.get("VITE_SUPABASE_PROJECT_URL")
-key: str = os.environ.get("VITE_SUPABASE_PROJECT_API_KEY")
+url: str = os.environ.get("SUPABASE_PROJECT_URL")
+key: str = os.environ.get("SUPABASE_PROJECT_API_KEY")
 
 supabase: Client = create_client(url, key)
 
