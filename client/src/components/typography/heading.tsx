@@ -43,3 +43,14 @@ export const H4 = (props: {
   }
   return <h4 className={className}>{props.children}</h4>;
 };
+
+export const H5 = (props: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
+  let className = "scroll-m-20 text-lg font-medium tracking-tight";
+  if (props.className) {
+    className = `scroll-m-20 text-lg font-medium tracking-tight ${props.className}`;
+  }
+  return <h5 className={className}>{props.children}</h5>;
+};

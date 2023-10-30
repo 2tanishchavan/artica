@@ -29,8 +29,8 @@ export const AuthProvider = ({ children }: any) => {
         const { data, error } = await supabaseClient
           .from("users")
           .select("id")
-          .eq("id", session.user.id);   
-        
+          .eq("id", session.user.id);
+
         if (error) throw error;
 
         if (data && data.length > 0) {
@@ -45,6 +45,9 @@ export const AuthProvider = ({ children }: any) => {
             .insert({
               id: session.user.id,
               full_name: session.user.user_metadata.full_name,
+              username: session.user.email
+                ?.slice(0, session.user.email?.indexOf("@"))
+                .replace(".", ""),
               email: session.user.user_metadata.email,
               avatar_url: session.user.user_metadata.avatar_url,
               bio: "",

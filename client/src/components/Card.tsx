@@ -1,20 +1,102 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Post } from "@/schema/schema";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
+import { H3, H4, H5 } from "./typography/heading";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Button } from "./ui/button";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
-import Post1 from "../assets/post1.png";
-import { H4 } from "./typography/heading";
+import { Badge } from "./ui/badge";
+import axios from "axios";
+import { supabaseClient } from "@/lib/supabaseClient";
+import { useAuth } from "@/hooks/useAuth";
 
-export default function Card() {
-  const [isLiked, setIsLiked] = useState(false);
+interface CardProps {
+  post: Post;
+}
+
+export default function Card({ post }: CardProps) {
+  const [likedId, setLikedId] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<Post[]>([]);
+  const { user } = useAuth();
+
+  const handleLike = async () => {
+    try {
+      const { data, error } = await supabaseClient
+        .from("liked_posts")
+        .insert({
+          user_id: user?.id,
+          post_id: post.id,
+        })
+        .select();
+
+      if (error) throw new Error(error.message);
+
+      if (data) {
+        setLikedId(data[0].id);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDislike = async () => {
+    try {
+      const { error } = await supabaseClient
+        .from("liked_posts")
+        .delete()
+        .eq("id", likedId);
+
+      if (error) throw new Error(error.message);
+
+      setLikedId("");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    const fetchSimilarPosts = async () => {
+      try {
+        const response = await axios.post(
+          `${import.meta.env.VITE_SERVER_URL}/v1/suggestions`,
+          { id: post.id }
+        );
+        if (response.status === 200 && response.data.status === "ok") {
+          setSuggestions(response.data.posts);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    const fetchLikedPosts = async () => {
+      try {
+        const { data, error } = await supabaseClient
+          .from("liked_posts")
+          .select("id")
+          .eq("user_id", user?.id)
+          .eq("post_id", post.id);
+
+        if (error) throw new Error(error.message);
+
+        if (data) {
+          setLikedId(data[0]?.id);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchSimilarPosts();
+    fetchLikedPosts();
+  }, []);
 
   return (
     <>
@@ -23,50 +105,109 @@ export default function Card() {
           <SheetTrigger asChild>
             <div className="h-5/6 relative group cursor-pointer">
               <img
-                src={Post1}
-                alt="post1"
+                src={`https://jdovucltsncprmixbiqz.supabase.co/storage/v1/object/public/posts_images/${post.images[0]}`}
+                alt={post.title}
                 className="h-full w-full object-cover rounded-md transition-all group-hover:blur-[0.8px] group-hover:brightness-50"
               />
               <H4 className="absolute left-2 bottom-2 text-white z-10 opacity-0 transition-opacity group-hover:opacity-100">
-                An amazing illustration
+                {post.title}
               </H4>
             </div>
           </SheetTrigger>
           <div className="flex justify-between items-center my-2">
-            <p className="font-medium w-11/12 cursor-pointer">An amazing illustration</p>
-            {isLiked ? (
+            <Link
+              to={`/profile/${post.user?.username}`}
+              className="flex justify-between items-center gap-x-2"
+            >
+              <Avatar className="h-7 w-7">
+                <AvatarImage
+                  src={post.user?.avatar_url}
+                  alt={post.user?.username}
+                />
+                <AvatarFallback>
+                  {post.user?.full_name
+                    .split(" ")
+                    .map((word: string) => word[0])}
+                </AvatarFallback>
+              </Avatar>
+              <H5>{post.user?.full_name}</H5>
+            </Link>
+            {likedId ? (
               <AiFillHeart
                 className="cursor-pointer text-2xl w-1/12 text-dribbble-1"
-                onClick={() => setIsLiked((prev) => !prev)}
+                onClick={handleDislike}
               />
             ) : (
               <AiOutlineHeart
                 className="cursor-pointer text-2xl w-1/12"
-                onClick={() => setIsLiked((prev) => !prev)}
+                onClick={handleLike}
               />
             )}
           </div>
         </div>
-        <SheetContent side="bottom" className="w-full h-[90%]">
+        <SheetContent side="bottom" className="w-full h-[95%]">
           <SheetHeader>
-            <SheetTitle>
-              <div className="text-2xl">Share your artwork on Artica</div>
-            </SheetTitle>
-            <SheetDescription>
-              🎨 Embrace the world of colors, shapes, and emotions with this
-              exquisite piece of art. 🖌️ Let your imagination run wild and
-              immerse yourself in a journey of creativity and expression.
-            </SheetDescription>
+            <div className="flex justify-start items-center pb-4 border-b-2">
+              <Link
+                to={`/profile/${post.user?.username}`}
+                className="flex justify-between items-center gap-x-2"
+              >
+                <Avatar className="h-10 w-10">
+                  <AvatarImage
+                    src={post.user?.avatar_url}
+                    alt={post.user?.username}
+                  />
+                  <AvatarFallback>
+                    {post.user?.full_name
+                      .split(" ")
+                      .map((word: string) => word[0])}
+                  </AvatarFallback>
+                </Avatar>
+                <H3>{post.user?.full_name}</H3>
+              </Link>
+            </div>
           </SheetHeader>
-          <SheetClose asChild>
-            <Button
-              type="submit"
-              className="bg-dribbble-1 hover:bg-dribbble-1"
-              onClick={() => {}}
-            >
-              Save changes
-            </Button>
-          </SheetClose>
+          <SheetTitle>
+            <div className="text-2xl mb-2">{post.title}</div>
+          </SheetTitle>
+          <SheetDescription className="mb-2">
+            {post.description}
+          </SheetDescription>
+          <div className="mb-4">
+            {post.tags.map((tag, index) => (
+              <Badge
+                key={index}
+                variant="outline"
+                className="w-fit rounded-md bg-slate-100 mr-2"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
+          <div className="flex flex-col justify-between items-start h-[550px]">
+            <div className="flex justify-start items-center gap-4 overflow-x-scroll no-scrollbar">
+              {post.images.map((image, index) => (
+                <img
+                  key={index}
+                  src={`https://jdovucltsncprmixbiqz.supabase.co/storage/v1/object/public/posts_images/${image}`}
+                  alt={post.title}
+                  className="h-[220px] w-[340px] object-cover rounded-md cursor-pointer"
+                />
+              ))}
+            </div>
+            {suggestions.length > 0 && (
+              <>
+                <H4 className="my-4">Suggested Posts</H4>
+                <div className="flex justify-start items-center gap-4 overflow-x-scroll no-scrollbar">
+                  {suggestions.map(
+                    (post, index) => (
+                      <Card key={index} post={post} />
+                    )
+                  )}
+                </div>
+              </>
+            )}
+          </div>
         </SheetContent>
       </Sheet>
     </>

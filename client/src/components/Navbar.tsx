@@ -22,27 +22,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Textarea } from "./ui/textarea";
+import { LiaTelegramPlane } from "react-icons/lia";
+import { supabaseClient } from "@/lib/supabaseClient";
 
 interface FormData {
+  id?: string;
   title: string;
-  image: ArrayBuffer | string | null;
+  description: string;
+  images: string[];
   category: string;
+  tags: string;
+  user_id: string | undefined;
 }
 
-const initialData: FormData = {
-  title: "",
-  image: null,
-  category: "",
-};
-
 export const Navbar: React.FC = () => {
-  const [formData, setFormData] = useState<FormData>(initialData);
-  const [imageBase64, setImageBase64] = useState<string>("");
   const { user } = useAuth();
-
-  if (!user) {
-    return null;
-  }
+  const initialData: FormData = {
+    title: "",
+    description: "",
+    images: [],
+    category: "",
+    tags: "",
+    user_id: user?.id,
+  };
+  const [formData, setFormData] = useState<FormData>(initialData);
+  const [fileLists, setFileLists] = useState<FileList | null>(null);
+  // const [imagesBase64, setImagesBase64] = useState<
+  //   (string | ArrayBuffer | null)[]
+  // >([]);
 
   const handleTitle = (e: ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -51,23 +59,37 @@ export const Navbar: React.FC = () => {
     });
   };
 
+  const handleDescription = (e: ChangeEvent<HTMLTextAreaElement>) => {
+    setFormData({
+      ...formData,
+      description: e.target.value,
+    });
+  };
+
   const handleImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
     const { files } = event.target;
+
     if (files) {
-      const file = files[0];
-      const base64 = convertToBase64(file).toString();
-      setImageBase64(base64);
+      // for (let i = 0; i < files.length; i++) {
+      //   const file = files[i];
+      //   convertToBase64(file).then((imageBase64) =>
+      //     setImagesBase64((prev) => [...prev, imageBase64])
+      //   );
+      // }
+      setFileLists(files);
     }
   };
 
-  const convertToBase64 = (file: File) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  };
+  // const convertToBase64 = (
+  //   file: File
+  // ): Promise<ArrayBuffer | string | null> => {
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = () => resolve(reader.result);
+  //     reader.onerror = (error) => reject(error);
+  //     reader.readAsDataURL(file);
+  //   });
+  // };
 
   const handleCategory = (value: string) =>
     setFormData({
@@ -75,14 +97,65 @@ export const Navbar: React.FC = () => {
       category: value,
     });
 
-  const handleSubmit = () => {
-    const formDetails = {
-      title: formData.title,
-      image: imageBase64,
-      category: formData.category,
-    };
-    console.log(formDetails);
+  const handleTags = (event: ChangeEvent<HTMLInputElement>) =>
+    setFormData({
+      ...formData,
+      tags: event.target.value,
+    });
+
+  const handleSubmit = async () => {
+    try {
+      const formDetails = {
+        title: formData.title,
+        description: formData.description,
+        images: formData.images,
+        category: formData.category,
+        tags: formData.tags.split(", "),
+        user_id: formData.user_id,
+      };
+
+      const { data, error } = await supabaseClient
+        .from("posts")
+        .insert(formDetails)
+        .select();
+
+      if (error) throw new Error(error.message);
+
+      const postResponse: FormData = data[0];
+
+      // Upload images to buckets
+
+      if (fileLists) {
+        const imageUploadPromises = Array.from(fileLists).map(
+          async (file, index) => {
+            const { data, error } = await supabaseClient.storage
+              .from("posts_images")
+              .upload(`${user?.id}/${postResponse.id}/${index}`, file);
+
+            if (error) return console.log(error);
+
+            return data.path;
+          }
+        );
+
+        const uploadedImagePaths = await Promise.all(imageUploadPromises);
+
+        const { error } = await supabaseClient
+          .from("posts")
+          .update({ images: uploadedImagePaths })
+          .eq("id", postResponse.id)
+          .select();
+
+        if (error) throw new Error(error.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
+
+  if (!user) {
+    return null;
+  }
 
   return (
     <nav className="flex justify-between items-center mx-10 py-6 border-b-2 border-b-gray-100">
@@ -117,6 +190,12 @@ export const Navbar: React.FC = () => {
         >
           Hire Artist
         </NavLink>
+        <NavLink
+          className="hover:bg-nav-item-hover hover:text-black text-gray-500 hover:font-semibold font-medium text-sm px-4 py-2 rounded-full cursor-pointer"
+          to="/similar-images"
+        >
+          Similar Images
+        </NavLink>
       </div>
       <div className="right-section flex justify-center items-center gap-x-4">
         <UserNav />
@@ -133,58 +212,91 @@ export const Navbar: React.FC = () => {
               </SheetTitle>
               <SheetDescription>
                 🎨 Embrace the world of colors, shapes, and emotions with this
-                exquisite piece of art. 🖌️ Let your imagination run wild and
-                immerse yourself in a journey of creativity and expression.
+                exquisite piece of art.
+                <br />
+                🖌️ Let your imagination run wild and immerse yourself in a
+                journey of creativity and expression.
               </SheetDescription>
             </SheetHeader>
             <form
-              className="grid justify-start items-start gap-4 py-4"
+              className="flex flex-col justify-start items-start gap-4 my-4"
               onSubmit={handleSubmit}
             >
-              <Label htmlFor="title" className="text-left">
-                Title
-              </Label>
-              <Input
-                type="text"
-                id="title"
-                value={formData.title}
-                className="col-span-5"
-                onChange={handleTitle}
-              />
-              <Label htmlFor="image" className="text-left">
-                Image
+              <Label htmlFor="image" className="text-lg">
+                Images
               </Label>
               <Input
                 type="file"
+                accept="image/jpg, image/jpeg, image/png"
                 id="image"
-                value={formData.image?.toString()}
-                className="col-span-5"
                 onChange={handleImageSelect}
+                multiple
               />
-              <Label htmlFor="username" className="text-left">
-                Category
-              </Label>
-              <Select value={formData.category} onValueChange={handleCategory}>
-                <SelectTrigger className="col-span-5">
-                  <SelectValue placeholder="Select a category of art" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectGroup>
-                    <SelectItem value="photography">Photography</SelectItem>
-                    <SelectItem value="sketch">Sketch</SelectItem>
-                    <SelectItem value="painting">Painting</SelectItem>
-                    <SelectItem value="illustration">Illustration</SelectItem>
-                    <SelectItem value="3d-modelling">3D Modelling</SelectItem>
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
+              <div className="flex justify-start items-start gap-x-4 w-full">
+                <div className="flex flex-col justify-start items-stretch gap-2 w-6/12">
+                  <Label htmlFor="title" className="text-lg">
+                    Title
+                  </Label>
+                  <Input
+                    type="text"
+                    id="title"
+                    value={formData.title}
+                    onChange={handleTitle}
+                  />
+                  <Label htmlFor="description" className="text-lg">
+                    Description
+                  </Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Type your description here..."
+                    value={formData.description}
+                    onChange={handleDescription}
+                  />
+                </div>
+                <div className="flex flex-col justify-start items-stretch gap-2 w-6/12">
+                  <Label htmlFor="category" className="text-lg">
+                    Category
+                  </Label>
+                  <Select
+                    value={formData.category}
+                    onValueChange={handleCategory}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category of art" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectItem value="photography">Photography</SelectItem>
+                        <SelectItem value="sketch">Sketch</SelectItem>
+                        <SelectItem value="painting">Painting</SelectItem>
+                        <SelectItem value="illustration">
+                          Illustration
+                        </SelectItem>
+                        <SelectItem value="3d-modelling">
+                          3D Modelling
+                        </SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <Label htmlFor="tags" className="text-lg">
+                    Tags
+                  </Label>
+                  <Input
+                    type="text"
+                    id="tags"
+                    value={formData.tags}
+                    onChange={handleTags}
+                  />
+                </div>
+              </div>
               <SheetClose asChild>
                 <Button
                   type="submit"
-                  className="bg-dribbble-1 hover:bg-dribbble-1"
+                  className="bg-dribbble-1 hover:bg-dribbble-1 flex justify-center items-center gap-2"
                   onClick={handleSubmit}
                 >
-                  Save changes
+                  Share
+                  <LiaTelegramPlane className="text-lg font-bold" />
                 </Button>
               </SheetClose>
             </form>
