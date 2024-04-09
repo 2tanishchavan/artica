@@ -132,6 +132,8 @@ export const Navbar: React.FC = () => {
               .from("posts_images")
               .upload(`${user?.id}/${postResponse.id}/${index}`, file);
 
+            console.log(`${user?.id}/${postResponse.id}/${index}`);
+
             if (error) return console.log(error);
 
             return data.path;
@@ -147,6 +149,8 @@ export const Navbar: React.FC = () => {
           .select();
 
         if (error) throw new Error(error.message);
+
+        setFormData(initialData);
       }
     } catch (error) {
       console.log(error);

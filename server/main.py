@@ -17,22 +17,22 @@ def index():
     return {"message": "Connection Successfull!"}
 
 
-@app.post("/api/v1/suggestions")
-async def suggestions(request: dict):
-    posts = get_posts()
+# @app.post("/api/v1/suggestions")
+# async def suggestions(request: dict):
+#     posts = get_posts()
 
-    posts_dataset = []
-    for post in posts:
-        post["user_id"] = get_user_full_name_by_id(post["user_id"])
-        post["tag"] = None
-        posts_dataset.append(post)
+#     posts_dataset = []
+#     for post in posts:
+#         post["user_id"] = get_user_full_name_by_id(post["user_id"])
+#         post["tag"] = None
+#         posts_dataset.append(post)
 
-    post_id: str = request["id"]
-    post_title = get_post_title_by_id(post_id)
+#     post_id: str = request["id"]
+#     post_title = get_post_title_by_id(post_id)
 
-    posts = get_similar_posts_recommendations(posts_dataset, post_title)
+#     posts = get_similar_posts_recommendations(posts_dataset, post_title)
 
-    return {"status": "ok", "posts": posts}
+#     return {"status": "ok", "posts": posts}
 
 @app.post("/api/v1/recommendations")
 async def recommendations(request: dict):

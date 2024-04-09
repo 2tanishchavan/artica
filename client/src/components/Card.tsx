@@ -94,7 +94,7 @@ export default function Card({ post }: CardProps) {
       }
     };
 
-    fetchSimilarPosts();
+    // fetchSimilarPosts();
     fetchLikedPosts();
   }, []);
 
@@ -105,7 +105,7 @@ export default function Card({ post }: CardProps) {
           <SheetTrigger asChild>
             <div className="h-5/6 relative group cursor-pointer">
               <img
-                src={`https://jdovucltsncprmixbiqz.supabase.co/storage/v1/object/public/posts_images/${post.images[0]}`}
+                src={`https://mxtqzbgjbzmyjkcvwcvc.supabase.co/storage/v1/object/public/posts_images/${post.images[0]}`}
                 alt={post.title}
                 className="h-full w-full object-cover rounded-md transition-all group-hover:blur-[0.8px] group-hover:brightness-50"
               />
@@ -116,21 +116,22 @@ export default function Card({ post }: CardProps) {
           </SheetTrigger>
           <div className="flex justify-between items-center my-2">
             <Link
-              to={`/profile/${post.user?.username}`}
+              to={`/profile/${post.users?.username}`}
               className="flex justify-between items-center gap-x-2"
             >
               <Avatar className="h-7 w-7">
                 <AvatarImage
-                  src={post.user?.avatar_url}
-                  alt={post.user?.username}
+                  referrerPolicy="no-referrer"
+                  src={post.users?.avatar_url}
+                  alt={post.users?.username}
                 />
                 <AvatarFallback>
-                  {post.user?.full_name
+                  {post.users?.full_name
                     .split(" ")
                     .map((word: string) => word[0])}
                 </AvatarFallback>
               </Avatar>
-              <H5>{post.user?.full_name}</H5>
+              <H5>{post.users?.full_name}</H5>
             </Link>
             {likedId ? (
               <AiFillHeart
@@ -149,21 +150,22 @@ export default function Card({ post }: CardProps) {
           <SheetHeader>
             <div className="flex justify-start items-center pb-4 border-b-2">
               <Link
-                to={`/profile/${post.user?.username}`}
+                to={`/profile/${post.users?.username}`}
                 className="flex justify-between items-center gap-x-2"
               >
                 <Avatar className="h-10 w-10">
                   <AvatarImage
-                    src={post.user?.avatar_url}
-                    alt={post.user?.username}
+                    referrerPolicy="no-referrer"
+                    src={post.users?.avatar_url}
+                    alt={post.users?.username}
                   />
                   <AvatarFallback>
-                    {post.user?.full_name
+                    {post.users?.full_name
                       .split(" ")
                       .map((word: string) => word[0])}
                   </AvatarFallback>
                 </Avatar>
-                <H3>{post.user?.full_name}</H3>
+                <H3>{post.users?.full_name}</H3>
               </Link>
             </div>
           </SheetHeader>
@@ -189,7 +191,7 @@ export default function Card({ post }: CardProps) {
               {post.images.map((image, index) => (
                 <img
                   key={index}
-                  src={`https://jdovucltsncprmixbiqz.supabase.co/storage/v1/object/public/posts_images/${image}`}
+                  src={`https://mxtqzbgjbzmyjkcvwcvc.supabase.co/storage/v1/object/public/posts_images/${image}`}
                   alt={post.title}
                   className="h-[220px] w-[340px] object-cover rounded-md cursor-pointer"
                 />
@@ -199,11 +201,9 @@ export default function Card({ post }: CardProps) {
               <>
                 <H4 className="my-4">Suggested Posts</H4>
                 <div className="flex justify-start items-center gap-4 overflow-x-scroll no-scrollbar">
-                  {suggestions.map(
-                    (post, index) => (
-                      <Card key={index} post={post} />
-                    )
-                  )}
+                  {suggestions.map((post, index) => (
+                    <Card key={index} post={post} />
+                  ))}
                 </div>
               </>
             )}

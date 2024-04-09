@@ -1,22 +1,24 @@
-export type User = {
-  id: string;
+import { UUID } from "crypto";
+
+export interface User {
+  id: UUID;
   full_name: string;
-  username: string;
-  email: string;
+  username?: string;
   avatar_url: string;
-  bio?: string;
-  location?: string;
+  email: string;
+  bio?: string | null;
+  location?: string | null;
   updated_at?: string;
   created_at?: string;
-};
+}
 
 export type Post = {
-  id: string;
+  id: UUID;
   title: string;
   description: string;
   category: string;
   tags: string[];
   images: string[];
-  user: User;
+  users: User;
   created_at?: string;
 };

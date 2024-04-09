@@ -1,9 +1,11 @@
 import About from "@/components/About";
+import Card from "@/components/Card";
 import { Muted } from "@/components/typography/muted";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { supabaseClient } from "@/lib/supabaseClient";
+import { Post } from "@/schema/schema";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -18,6 +20,7 @@ export interface UserDetails {
 export default function Profile() {
   const { session } = useAuth();
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [likedPosts, setLikedPosts] = useState<Post[] | null>();
 
   useEffect(() => {
     (async () => {
@@ -33,6 +36,36 @@ export default function Profile() {
       }
     })();
   }, [session?.user.id]);
+
+  useEffect(() => {
+    const fetchLikedPosts = async () => {
+      const { data, error } = await supabaseClient
+        .from("liked_posts")
+        .select("post_id")
+        .eq("user_id", session?.user.id);
+
+      if (error) throw error;
+
+      if (data) {
+        const {
+          data: posts,
+          error: posts_error,
+        }: { data: Post[] | null; error: any } = await supabaseClient
+          .from("posts")
+          .select(
+            "id, title, description, category, tags, images, created_at, users(id, full_name, username, avatar_url, email, bio, location, updated_at, created_at)"
+          )
+          .eq("id", data[0].post_id);
+
+        if (posts_error) throw posts_error;
+
+        if (posts) {
+          setLikedPosts(posts);
+        }
+      }
+    };
+    fetchLikedPosts();
+  }, []);
 
   return (
     <div className="mx-10 py-6 flex flex-col justify-start items-stretch gap-20">
@@ -65,11 +98,11 @@ export default function Profile() {
           <TabsTrigger value="about">About</TabsTrigger>
         </TabsList>
         <hr className="my-5" />
-        <TabsContent value="work">
-          Work
-        </TabsContent>
+        <TabsContent value="work">Work</TabsContent>
         <TabsContent value="liked">
-          Liked
+          {likedPosts?.map((post) => (
+            <Card key={post.id} post={post} />
+          ))}
         </TabsContent>
         <TabsContent value="about">
           <About />

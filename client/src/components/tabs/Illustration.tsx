@@ -23,7 +23,7 @@ export default function Illustration() {
               .eq("id", post.user_id);
             if (error) throw new Error(error.message);
             if (data) {
-              return { ...post, user: data[0] };
+              return { ...post, users: data[0] };
             }
           });
 

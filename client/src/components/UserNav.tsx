@@ -20,13 +20,14 @@ export function UserNav() {
     signOut();
     navigate("/login");
   };
-  
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
             <AvatarImage
+              referrerPolicy="no-referrer"
               src={user?.user_metadata.avatar_url.toString()}
               alt={user?.user_metadata.full_name}
             />
@@ -56,7 +57,7 @@ export function UserNav() {
               Profile
             </DropdownMenuItem>
           </Link>
-          <Link to="setting">
+          <Link to="settings">
             <DropdownMenuItem className="cursor-pointer">
               Settings
             </DropdownMenuItem>

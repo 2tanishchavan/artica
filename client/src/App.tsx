@@ -3,7 +3,15 @@ import { AuthProvider } from "@/context/Auth";
 import RootLayout from "@/layouts/RootLayout";
 import ProtectedRoute from "@/layouts/ProtectedRoute";
 import { Login } from "@/pages/auth/Login";
-import { Inspiration, LearnArt, FindWork, HireArtist, SimilarImages, Profile } from "@/pages/content";
+import {
+  Inspiration,
+  LearnArt,
+  FindWork,
+  HireArtist,
+  SimilarImages,
+  Profile,
+  Settings,
+} from "@/pages/content";
 import "@/App.css";
 
 export default function App() {
@@ -58,6 +66,14 @@ export default function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />
