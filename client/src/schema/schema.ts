@@ -19,6 +19,6 @@ export type Post = {
   category: string;
   tags: string[];
   images: string[];
-  users: User;
+  users: User[];
   created_at?: string;
 };
