@@ -62,19 +62,19 @@ export default function Card({ post }: CardProps) {
   };
 
   useEffect(() => {
-    const fetchSimilarPosts = async () => {
-      try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_SERVER_URL}/v1/suggestions`,
-          { id: post.id }
-        );
-        if (response.status === 200 && response.data.status === "ok") {
-          setSuggestions(response.data.posts);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
+    // const fetchSimilarPosts = async () => {
+    //   try {
+    //     const response = await axios.post(
+    //       `${import.meta.env.VITE_SERVER_URL}/v1/suggestions`,
+    //       { id: post.id }
+    //     );
+    //     if (response.status === 200 && response.data.status === "ok") {
+    //       setSuggestions(response.data.posts);
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   }
+    // };
 
     const fetchLikedPosts = async () => {
       try {

@@ -25,7 +25,7 @@ export default function JobApplication({ job }: { job: Job }) {
     experience_level,
     location,
     salary,
-    users: { id, full_name, avatar_url, email },
+    users: { full_name, avatar_url, email },
     posted_at,
   } = job;
 
