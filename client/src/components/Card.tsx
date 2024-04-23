@@ -13,7 +13,6 @@ import {
   SheetTrigger,
 } from "./ui/sheet";
 import { Badge } from "./ui/badge";
-import axios from "axios";
 import { supabaseClient } from "@/lib/supabaseClient";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -23,7 +22,7 @@ interface CardProps {
 
 export default function Card({ post }: CardProps) {
   const [likedId, setLikedId] = useState<string>("");
-  const [suggestions, setSuggestions] = useState<Post[]>([]);
+  const [suggestions] = useState<Post[]>([]);
   const { user } = useAuth();
 
   const handleLike = async () => {
