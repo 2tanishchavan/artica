@@ -11,8 +11,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet";
-import { Label } from "@radix-ui/react-dropdown-menu";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { Link } from "react-router-dom";
@@ -37,20 +35,16 @@ export default function JobApplication({ job }: { job: Job }) {
     month: "2-digit",
     year: "numeric",
   }).format(date);
+  const fullNameInitials =
+    full_name.split(" ")[0][0] + full_name.split(" ")[1][0];
 
   return (
     <Sheet>
       <SheetTrigger asChild>
         <div className="flex justify-start items-start border-2 rounded-md min-w-[350px] p-4 cursor-pointer">
           <Avatar className="mr-4">
-            <AvatarImage
-              referrerPolicy="no-referrer"
-              src={avatar_url}
-              alt={full_name}
-            />
-            <AvatarFallback>
-              {full_name.split(" ")[0] + full_name.split(" ")[1]}
-            </AvatarFallback>
+            <AvatarImage src={avatar_url} alt={full_name} />
+            <AvatarFallback>{fullNameInitials}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col justify-start items-start gap-2 w-full">
             <div className="flex flex-col">
@@ -84,9 +78,7 @@ export default function JobApplication({ job }: { job: Job }) {
                 src={avatar_url}
                 alt={full_name}
               />
-              <AvatarFallback>
-                {full_name.split(" ")[0] + full_name.split(" ")[1]}
-              </AvatarFallback>
+              <AvatarFallback>{fullNameInitials}</AvatarFallback>
             </Avatar>
             <div className="text-4xl font-medium leading-none">{full_name}</div>
           </SheetTitle>
