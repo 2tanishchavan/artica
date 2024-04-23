@@ -115,14 +115,14 @@ export default function Card({ post }: CardProps) {
           </SheetTrigger>
           <div className="flex justify-between items-center my-2">
             <Link
-              to={`/profile/${post.users[0]?.username}`}
+              to={`/profile/${post.users?.username}`}
               className="flex justify-between items-center gap-x-2"
             >
               <Avatar className="h-7 w-7">
                 <AvatarImage
                   referrerPolicy="no-referrer"
-                  src={post.users[0]?.avatar_url}
-                  alt={post.users[0]?.username}
+                  src={post.users?.avatar_url}
+                  alt={post.users?.username}
                 />
                 <AvatarFallback>
                   {post.users[0]?.full_name
@@ -130,7 +130,7 @@ export default function Card({ post }: CardProps) {
                     .map((word: string) => word[0])}
                 </AvatarFallback>
               </Avatar>
-              <H5>{post.users[0]?.full_name}</H5>
+              <H5>{post.users?.full_name}</H5>
             </Link>
             {likedId ? (
               <AiFillHeart
@@ -149,7 +149,7 @@ export default function Card({ post }: CardProps) {
           <SheetHeader>
             <div className="flex justify-start items-center pb-4 border-b-2">
               <Link
-                to={`/profile/${post.users[0]?.username}`}
+                to={`/profile/${post.users?.username}`}
                 className="flex justify-between items-center gap-x-2"
               >
                 <Avatar className="h-10 w-10">

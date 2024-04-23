@@ -12,13 +12,13 @@ export interface User {
   created_at?: string;
 }
 
-export type Post = {
+export interface Post {
   id: UUID;
   title: string;
   description: string;
   category: string;
   tags: string[];
   images: string[];
-  users: User[];
+  users: User | User[] | any; // Remove any
   created_at?: string;
-};
+}
