@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from config import config_by_name
 from app.extensions import db, flask_bcrypt
 import os
@@ -12,6 +13,8 @@ def create_app(config_name=env):
     app.config.from_object(config_by_name[config_name])
 
     # Initialize Flask extensions here
+    CORS(app, origins='*')
+
     db.init_app(app)
     flask_bcrypt.init_app(app)
 
@@ -24,6 +27,12 @@ def create_app(config_name=env):
 
     from app.users import bp as users_bp
     app.register_blueprint(users_bp, url_prefix="/users")
+
+    from app.recommendations import bp as recommendations_bp
+    app.register_blueprint(recommendations_bp, url_prefix="/recommendations")
+
+    from app.embeddings import bp as embeddings_bp
+    app.register_blueprint(embeddings_bp, url_prefix="/embeddings")
 
     @app.route('/api/test')
     def test_page():

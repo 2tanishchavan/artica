@@ -23,14 +23,14 @@ interface CardProps {
 export default function Card({ post }: CardProps) {
   const [likedId, setLikedId] = useState<string>("");
   const [suggestions] = useState<Post[]>([]);
-  const { user } = useAuth();
+  const { session } = useAuth();
 
   const handleLike = async () => {
     try {
       const { data, error } = await supabaseClient
         .from("liked_posts")
         .insert({
-          user_id: user?.id,
+          user_id: session?.user.id,
           post_id: post.id,
         })
         .select();
@@ -80,7 +80,7 @@ export default function Card({ post }: CardProps) {
         const { data, error } = await supabaseClient
           .from("liked_posts")
           .select("id")
-          .eq("user_id", user?.id)
+          .eq("user_id", session?.user.id)
           .eq("post_id", post.id);
 
         if (error) throw new Error(error.message);

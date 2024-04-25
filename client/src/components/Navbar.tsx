@@ -25,6 +25,7 @@ import {
 import { Textarea } from "./ui/textarea";
 import { LiaTelegramPlane } from "react-icons/lia";
 import { supabaseClient } from "@/lib/supabaseClient";
+import { pipeline } from "@xenova/transformers";
 
 interface FormData {
   id?: string;
@@ -105,12 +106,31 @@ export const Navbar: React.FC = () => {
 
   const handleSubmit = async () => {
     try {
+      const generateEmbedding = await pipeline(
+        "feature-extraction",
+        "Supabase/gte-small"
+      );
+
+      // Generate a vector using Transformers.js
+      const text =
+        `${formData.title} ${formData.description} ${formData.category} ${formData.tags}`
+          .replace(/[,.\\-]/g, " ")
+          .toLowerCase();
+      const output = await generateEmbedding(text, {
+        pooling: "mean",
+        normalize: true,
+      });
+
+      // Extract the embedding output
+      const embedding = Array.from(output.data);
+
       const formDetails = {
         title: formData.title,
         description: formData.description,
         images: formData.images,
         category: formData.category,
         tags: formData.tags.split(", "),
+        embedding,
         user_id: formData.user_id,
       };
 
@@ -131,8 +151,6 @@ export const Navbar: React.FC = () => {
             const { data, error } = await supabaseClient.storage
               .from("posts_images")
               .upload(`${user?.id}/${postResponse.id}/${index}`, file);
-
-            console.log(`${user?.id}/${postResponse.id}/${index}`);
 
             if (error) return console.log(error);
 

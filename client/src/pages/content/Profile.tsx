@@ -47,20 +47,24 @@ export default function Profile() {
       if (error) throw error;
 
       if (data) {
-        const {
-          data: posts,
-          error: posts_error,
-        }: { data: Post[] | null; error: any } = await supabaseClient
-          .from("posts")
-          .select(
-            "id, title, description, category, tags, images, created_at, users(id, full_name, username, avatar_url, email, bio, location, updated_at, created_at)"
-          )
-          .eq("id", data[0].post_id);
+        const lipost: any = data.map(async (post) => {
+          const {
+            data: posts,
+            error: posts_error,
+          }: { data: Post[] | null; error: any } = await supabaseClient
+            .from("posts")
+            .select(
+              "id, title, description, category, tags, images, created_at, users(id, full_name, username, avatar_url, email, bio, location, updated_at, created_at)"
+            )
+            .eq("id", post.post_id);
 
-        if (posts_error) throw posts_error;
+          if (posts_error) throw posts_error;
 
-        if (posts) {
-          setLikedPosts(posts);
+          return posts;
+        });
+
+        if (lipost) {
+          setLikedPosts(lipost);
         }
       }
     };
@@ -100,8 +104,8 @@ export default function Profile() {
         <hr className="my-5" />
         <TabsContent value="work">Work</TabsContent>
         <TabsContent value="liked">
-          {likedPosts?.map((post) => (
-            <Card key={post.id} post={post} />
+          {likedPosts?.map((post, index) => (
+            <Card key={index} post={post} />
           ))}
         </TabsContent>
         <TabsContent value="about">

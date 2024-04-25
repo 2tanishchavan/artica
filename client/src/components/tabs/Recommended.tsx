@@ -2,26 +2,39 @@ import { useEffect, useState } from "react";
 import { H1 } from "../typography/heading";
 import Card from "../Card";
 import { Post } from "@/schema/schema";
-import axios from "axios";
 import { useAuth } from "@/hooks/useAuth";
+import { supabaseClient } from "@/lib/supabaseClient";
+import axios from "axios";
 
 export default function Recommended() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const { user } = useAuth();
+  const { session } = useAuth();
 
   useEffect(() => {
     const fetchRecommendedPosts = async () => {
       try {
-        const response = await axios.post(
-          `${import.meta.env.VITE_SERVER_URL}/v1/recommendations`,
+        const { data: liked_posts, error: error1 }: any = await supabaseClient
+          .from("liked_posts")
+          .select("posts(id, embedding)")
+          .eq("user_id", session?.user.id);
+
+        if (error1) throw new Error(error1.message);
+
+        const { data: all_posts, error: error2 }: any = await supabaseClient
+          .from("posts")
+          .select("id, embedding");
+
+        if (error2) throw new Error(error2.message);
+
+        const response = await axios.put(
+          "http://localhost:5000/recommendations",
           {
-            id: user?.id,
+            liked_posts,
+            all_posts,
           }
         );
 
-        if (response.status === 200 && response.data.status === "ok") {
-          setPosts(response.data.posts);
-        }
+        console.log(response);
       } catch (error) {
         console.log(error);
       }
